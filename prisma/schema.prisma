@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id    String    @id
+  name  String   
+  email String @unique
+  // This tells Prisma a User has many Tasks
+  tasks Task[] 
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  title     String
+  status    String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
