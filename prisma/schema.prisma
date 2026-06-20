@@ -4,23 +4,67 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 model User {
-  id    String    @id
-  name  String   
-  email String @unique
-  // This tells Prisma a User has many Tasks
-  tasks Task[] 
+  id           String           @id
+  name         String
+  email        String           @unique
+  role         Role             @default(USER)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  // Tasks created by this user
+  createdTasks Task[]           @relation("TaskCreator")
+  // Tasks assigned to this user
+  assignments  TaskAssignment[]
+
+  @@index([email])
+  @@map("users")
 }
 
 model Task {
-  id        Int      @id @default(autoincrement())
-  title     String
-  status    String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  users     User[]
+  id          String           @id @default(uuid())
+  title       String
+  description String
+  status      TaskStatus       @default(TODO)
+  dueDate     DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  // Creator
+  creatorId   String
+  creator     User             @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  // Assigned users
+  assignments TaskAssignment[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@map("tasks")
 }
 
+model TaskAssignment {
+  taskId String
+  userId String
+
+  assignedAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+  @@map("task_assignments")
+}

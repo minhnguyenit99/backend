@@ -5,7 +5,6 @@ import { UsersService } from './users.service.js';
 @Module({
   // No imports needed! PrismaService is automatically available to UsersService.
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService] // Optional
+  providers: [UsersService]
 })
 export class UsersModule {}

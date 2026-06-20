@@ -1,22 +1,25 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req } from '@nestjs/common';
 import { UsersService } from './users.service.js';
-import type { UserType } from 'type/type.js';
+import { Roles } from '../common/decorator/roles.decorator.js';
+import { Role } from '../generated/prisma/enums.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('sync')
-  // Tell NestJS to expect the entire body to match your UserType
-  async syncUser(@Body() user: UserType) {
-    console.log('from controller');
-    console.log(user);
-    // Pass the entire object directly to your service
-    return this.usersService.syncUser(user);
+  syncUser(@Req() req) {
+    return this.usersService.syncUser(req);
   }
 
-  @Get('test')
-  test() {
-    return 'working';
+  // @Roles(Role.ADMIN)
+  @Get('me')
+  getMe(@Req() req) {
+    return this.usersService.getUser(req)
+  }
+
+  @Get()
+  getAllUsers(){
+    return this.usersService.getAllUsers()
   }
 }
