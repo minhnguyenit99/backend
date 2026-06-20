@@ -1,5 +1,7 @@
 import { Controller, Post, Get, Req, Query } from '@nestjs/common';
 import { UsersService } from './users.service.js';
+import { Roles } from '../common/decorator/roles.decorator.js';
+import { Role } from '../generated/prisma/enums.js';
 
 @Controller('users')
 export class UsersController {
@@ -15,6 +17,7 @@ export class UsersController {
     return this.usersService.getUser(req.user.id);
   }
 
+  @Roles(Role.ADMIN)
   @Get()
   getAllUsers(@Query('skip') skip?: string, @Query('take') take?: string) {
     return this.usersService.getAllUsers(
