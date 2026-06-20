@@ -1,25 +1,25 @@
-import { Controller, Post, Body, Get, Req } from '@nestjs/common';
+import { Controller, Post, Get, Req, Query } from '@nestjs/common';
 import { UsersService } from './users.service.js';
-import { Roles } from '../common/decorator/roles.decorator.js';
-import { Role } from '../generated/prisma/enums.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('sync')
-  syncUser(@Req() req) {
-    return this.usersService.syncUser(req);
+  syncUser(@Req() req: any) {
+    return this.usersService.syncUser(req.user.id, req.user.name, req.user.email);
   }
 
-  // @Roles(Role.ADMIN)
   @Get('me')
-  getMe(@Req() req) {
-    return this.usersService.getUser(req)
+  getMe(@Req() req: any) {
+    return this.usersService.getUser(req.user.id);
   }
 
   @Get()
-  getAllUsers(){
-    return this.usersService.getAllUsers()
+  getAllUsers(@Query('skip') skip?: string, @Query('take') take?: string) {
+    return this.usersService.getAllUsers(
+      skip ? parseInt(skip, 10) : 0, 
+      take ? parseInt(take, 10) : 50
+    );
   }
 }
